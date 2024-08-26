@@ -99,27 +99,38 @@ def user():
             # Guardar la imagen si se proporciona
             if imagen and allowed_file(imagen.filename):
                 filename = secure_filename(imagen.filename)
+                
+                # Guardar imagen en MongoDB
                 image_id = mongo.db.imagenes.insert_one({
                     'filename': filename,
                     'content_type': imagen.content_type,
                     'data': imagen.read()
                 }).inserted_id
+                
+                # Resetear el stream de imagen para guardar el archivo en el servidor
+                imagen.seek(0)
+                
+                # Guardar imagen en la carpeta UPLOAD_FOLDER
+                imagen.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                
+                # Añadir referencia a la imagen en el post
                 post_data['imagen_id'] = str(image_id)
+                post_data['imagen_filename'] = filename
             elif imagen and not allowed_file(imagen.filename):
                 flash('Formato de imagen no permitido. Usa PNG, JPG o JPEG.')
                 return redirect(url_for('user'))
 
             # Guardar post en la base de datos
-            mongo.db.imagenes.insert_one(post_data)
+            mongo.db.posts.insert_one(post_data)  # Cambié a la colección 'posts'
             flash('Post creado exitosamente.')
 
         # Recuperar los posts para mostrarlos en el feed
-        imagenes = list(mongo.db.imagenes.find().sort('fecha', -1))  # Ordenar por fecha descendente
+        posts = list(mongo.db.posts.find().sort('fecha', -1))  # Ordenar por fecha descendente
 
         # Imprimir para depuración
-        print(imagenes)
+        print(posts)
 
-        return render_template('user.html', posts=imagenes)
+        return render_template('user.html', posts=posts)
 
     else:
         flash('Por favor, inicia sesión primero.')
@@ -138,5 +149,3 @@ if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
         os.makedirs(app.config['UPLOAD_FOLDER'])
     app.run(debug=True)
-
-    
