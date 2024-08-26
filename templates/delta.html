@@ -3,8 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='css/file-earmark-break-fill.svg') }}" type="image/svg+xml">
     <title>Perfil de Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #b5aaaa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .perfil {
+            width: 200px;
+            height: 200px;
+            margin: -100px 0 0; /* Ajustar según sea necesario */
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(217, 156, 156, 0.1);
+            border-radius: 50%;
+        }
+
+        .perfil img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .contenido {
+            display: flex;
+            width: 100%;
+            max-width: 1500px;
+            margin: 20px auto;
+            box-sizing: border-box;
+        }
+
+        .historial {
+            width: 25%;
+            background-color: #c4c4c4;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+
+        .historial h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .historial ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .historial ul li {
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .historial img {
+            width: 100%; /* Ajustar el tamaño al contenedor */
+            height: auto; /* Mantener la proporción de la imagen */
+            border-radius: 10px; /* Opcional: bordes redondeados para las imágenes */
+            margin-top: 10px; /* Espacio superior para separar la imagen del texto */
+        }
+
+        .principal {
+            width: 75%;
+        }
+
+        .nuevo-post {
+            background-color: #8a8484;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nuevo-post textarea {
+            width: 100%;
+            height: 80px;
+            border: none;
+            resize: none;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .nuevo-post input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        .opciones {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .opciones img {
+            width: 20px;
+            cursor: pointer;
+        }
+
+        .opciones button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .feed {
+            width: 100%;
+        }
+
+        .post {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .post img {
+            width: 100%;
+            height: auto;
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+
+        .comentarios {
+            margin-top: 20px;
+        }
+
+        .comentarios h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .comentario {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .nuevo-comentario textarea {
+            width: 100%;
+            height: 60px;
+            border: none;
+            resize: none;
+            padding: 10px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .nuevo-comentario button {
+            padding: 8px 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .edit-form {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
     <!-- Capa rectangular con imagen -->
@@ -20,34 +213,74 @@
     <!-- Mensaje de bienvenida -->
     <h2>Bienvenido, {{ session['usuario'] }}!</h2>
 
-    <!-- Formulario para crear un nuevo post -->
-    <div class="nuevo-post">
-        <form method="POST" enctype="multipart/form-data" action="{{ url_for('user') }}">
-            <textarea name="texto" placeholder="¿Qué estás pensando?"></textarea>
-            <div class="opciones">
-                <label for="imagen">
-                    <img src="static/images/iconimg.png" alt="Añadir imagen">
-                </label>
-                <input type="file" name="imagen" id="imagen" accept="image/png, image/jpeg" style="display: none;">
-                <button type="submit">Postear</button>
+    <!-- Contenedor principal para el historial y el feed -->
+    <div class="contenido">
+        <!-- Columna izquierda con el historial de posts -->
+        <div class="historial">
+            <h3>Historial de Posts</h3>
+            <ul>
+                {% for post in posts %}
+                <li>
+                    <p>{{ post['texto'] }}</p>
+                    <p>Publicado por: {{ post['usuario'] }} el {{ post['fecha'] }}</p>
+                    {% if post.get('imagen_id') %}
+                    <img src="{{ url_for('imagen', imagen_id=post['imagen_id']) }}" alt="Imagen de post">
+                    {% endif %}
+                    <!-- Botón para borrar el post -->
+                    <form method="POST" action="{{ url_for('borrar_post', post_id=post['_id']) }}" style="display:inline;">
+                        <button type="submit" style="background-color: #FF0000; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                            Borrar
+                        </button>
+                    </form>
+                    <!-- Formulario para modificar el post -->
+                    <form class="edit-form" method="POST" action="{{ url_for('editar_post', post_id=post['_id']) }}">
+                        <textarea name="texto">{{ post['texto'] }}</textarea>
+                        <button type="submit">Actualizar</button>
+                    </form>
+                    <!-- Enlace para mostrar el formulario de modificación -->
+                    <a href="#" onclick="toggleEditForm(this)" style="background-color: #007BFF; color: white; text-decoration: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                        Modificar
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Columna derecha con el formulario para nuevos posts -->
+        <div class="principal">
+            <div class="nuevo-post">
+                <form method="POST" action="{{ url_for('user') }}" enctype="multipart/form-data">
+                    <textarea name="texto" placeholder="Escribe tu post aquí..."></textarea>
+                    <input type="file" name="imagen">
+                    <button type="submit">Publicar</button>
+                </form>
             </div>
-        </form>
+            <!-- Aquí se muestran los posts -->
+            <div class="feed">
+                {% for post in posts %}
+                <div class="post">
+                    <p>{{ post['texto'] }}</p>
+                    <p>Publicado por: {{ post['usuario'] }} el {{ post['fecha'] }}</p>
+                    {% if post.get('imagen_id') %}
+                    <img src="{{ url_for('imagen', imagen_id=post['imagen_id']) }}" alt="Imagen de post">
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
-    <!-- Sección para mostrar el historial de publicaciones -->
-    <div class="contenido">
-        <h3>Tus publicaciones</h3>
-        <ul>
-            {% for post in posts %}
-            <li>
-                <p>{{ post['texto'] }}</p>
-                <p>Publicado por: {{ post['usuario'] }} el {{ post['fecha'] }}</p>
-                {% if post.get('imagen_id') %}
-                <img src="{{ url_for('imagen', imagen_id=post['imagen_id']) }}" alt="Imagen de post">
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
+    <script>
+    function toggleEditForm(link) {
+        var form = link.parentNode.querySelector('.edit-form');
+        if (form.style.display === 'block') {
+            form.style.display = 'none';
+            link.textContent = 'Modificar';
+        } else {
+            form.style.display = 'block';
+            link.textContent = 'Cancelar';
+        }
+    }
+    </script>
 </body>
 </html>

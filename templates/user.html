@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link  class="ops" rel="icon" href="{{ url_for('static', filename='css/file-earmark-break-fill.svg') }}" type="image/svg+xml">
-
+    <link rel="icon" href="{{ url_for('static', filename='css/file-earmark-break-fill.svg') }}" type="image/svg+xml">
     <title>Perfil de Usuario</title>
     <style>
         body {
@@ -34,26 +33,28 @@
         .perfil {
             width: 200px;
             height: 200px;
-            margin: -100px 0 0 -1500px; /* Ajustado a la izquierda con un margen de 20px */
+            margin: -100px 0 0; /* Ajustar según sea necesario */
             overflow: hidden;
             position: relative;
             z-index: 1;
             background-color: #ffffff;
             box-shadow: 0 0 10px rgba(217, 156, 156, 0.1);
+            border-radius: 50%;
         }
 
         .perfil img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            border-radius: 50%;
         }
 
         .contenido {
             display: flex;
             width: 100%;
-            max-width: 1500px; /* Ajustar según el ancho deseado */
+            max-width: 1500px;
             margin: 20px auto;
-            box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho y alto */
+            box-sizing: border-box;
         }
 
         .historial {
@@ -84,6 +85,13 @@
             box-shadow: 0 0 5px rgba(0,0,0,0.1);
         }
 
+        .historial img {
+            width: 100%; /* Ajustar el tamaño al contenedor */
+            height: auto; /* Mantener la proporción de la imagen */
+            border-radius: 10px; /* Opcional: bordes redondeados para las imágenes */
+            margin-top: 10px; /* Espacio superior para separar la imagen del texto */
+        }
+
         .principal {
             width: 75%;
         }
@@ -97,13 +105,17 @@
         }
 
         .nuevo-post textarea {
-            width: 98%;
+            width: 100%;
             height: 80px;
             border: none;
             resize: none;
             margin-bottom: 10px;
             padding: 10px;
             font-size: 16px;
+        }
+
+        .nuevo-post input[type="file"] {
+            margin-bottom: 10px;
         }
 
         .opciones {
@@ -140,7 +152,7 @@
 
         .post img {
             width: 100%;
-            height: auto; /* Mantiene la proporción de la imagen */
+            height: auto;
             margin-top: 10px;
             border-radius: 10px;
         }
@@ -180,6 +192,11 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
+        .edit-form {
+            display: none;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -206,36 +223,64 @@
                 <li>
                     <p>{{ post['texto'] }}</p>
                     <p>Publicado por: {{ post['usuario'] }} el {{ post['fecha'] }}</p>
-                    {% if post.get('imagenes_id') %}
+                    {% if post.get('imagen_id') %}
                     <img src="{{ url_for('imagen', imagen_id=post['imagen_id']) }}" alt="Imagen de post">
                     {% endif %}
+                    <!-- Botón para borrar el post -->
+                    <form method="POST" action="{{ url_for('borrar_post', post_id=post['_id']) }}" style="display:inline;">
+                        <button type="submit" style="background-color: #FF0000; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                            Borrar
+                        </button>
+                    </form>
+                    <!-- Formulario para modificar el post -->
+                    <form class="edit-form" method="POST" action="{{ url_for('editar_post', post_id=post['_id']) }}">
+                        <textarea name="texto">{{ post['texto'] }}</textarea>
+                        <button type="submit">Actualizar</button>
+                    </form>
+                    <!-- Enlace para mostrar el formulario de modificación -->
+                    <a href="#" onclick="toggleEditForm(this)" style="background-color: #007BFF; color: white; text-decoration: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 10px;">
+                        Modificar
+                    </a>
                 </li>
                 {% endfor %}
             </ul>
         </div>
 
-        <!-- Sección principal con el feed y nuevo post -->
+        <!-- Columna derecha con el formulario para nuevos posts -->
         <div class="principal">
-            <!-- Formulario para crear un nuevo post -->
             <div class="nuevo-post">
-                <form method="POST" enctype="multipart/form-data" action="{{ url_for('user') }}">
-                    <textarea name="texto" placeholder="¿Qué estás pensando?"></textarea>
-                    <div class="opciones">
-                        <label for="imagen">
-                            <img src="static/images/iconimg.png" alt="Añadir imagen">
-                        </label>
-                        <input type="file" name="imagen" id="imagen" accept="image/png, image/jpeg" style="display: none;">
-                        <button type="submit">Postear</button>
-                    </div>
+                <form method="POST" action="{{ url_for('user') }}" enctype="multipart/form-data">
+                    <textarea name="texto" placeholder="Escribe tu post aquí..."></textarea>
+                    <input type="file" name="imagen">
+                    <button type="submit">Publicar</button>
                 </form>
             </div>
-
-            <!-- Feed donde se mostrarán los posts -->
+            <!-- Aquí se muestran los posts -->
             <div class="feed">
-                <!-- Aquí se pueden agregar posts dinámicos -->
+                {% for post in posts %}
+                <div class="post">
+                    <p>{{ post['texto'] }}</p>
+                    <p>Publicado por: {{ post['usuario'] }} el {{ post['fecha'] }}</p>
+                    {% if post.get('imagen_id') %}
+                    <img src="{{ url_for('imagen', imagen_id=post['imagen_id']) }}" alt="Imagen de post">
+                    {% endif %}
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
+
+    <script>
+    function toggleEditForm(link) {
+        var form = link.parentNode.querySelector('.edit-form');
+        if (form.style.display === 'block') {
+            form.style.display = 'none';
+            link.textContent = 'Modificar';
+        } else {
+            form.style.display = 'block';
+            link.textContent = 'Cancelar';
+        }
+    }
+    </script>
 </body>
 </html>
-

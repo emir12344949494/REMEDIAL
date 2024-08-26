@@ -1,9 +1,11 @@
 import os
-from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask import Flask, render_template, redirect, url_for, request, flash, session, send_file
 from flask_pymongo import PyMongo
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from bson.objectid import ObjectId
+from io import BytesIO
 
 app = Flask(__name__)
 
@@ -56,7 +58,7 @@ def register():
         })
 
         flash('Usuario registrado exitosamente.')
-        return redirect(url_for('login'))  # Redirige a una página de login después de registrar
+        return redirect(url_for('login'))
 
     return render_template('register.html')
 
@@ -74,7 +76,7 @@ def login():
             session['user_id'] = str(user['_id'])
             session['usuario'] = user['usuario']
             flash('Inicio de sesión exitoso.')
-            return redirect(url_for('user'))  # Redirigir a la página del usuario
+            return redirect(url_for('user'))
         else:
             flash('Correo o contraseña incorrectos.')
 
@@ -126,21 +128,68 @@ def user():
         # Recuperar los posts para mostrarlos en el feed
         posts = list(mongo.db.posts.find().sort('fecha', -1))  # Ordenar por fecha descendente
 
-        # Imprimir para depuración
-        print(posts)
-
         return render_template('user.html', posts=posts)
 
     else:
         flash('Por favor, inicia sesión primero.')
         return redirect(url_for('login'))
 
-# Cerrar sesión
+@app.route('/borrar_post/<post_id>', methods=['POST'])
+def borrar_post(post_id):
+    try:
+        # Convertir post_id a ObjectId si es necesario
+        post_id = ObjectId(post_id)
+        # Obtener el post para eliminar la imagen asociada
+        post = mongo.db.posts.find_one({'_id': post_id})
+        if post and post.get('imagen_id'):
+            # Eliminar la imagen de MongoDB
+            mongo.db.imagenes.delete_one({'_id': ObjectId(post['imagen_id'])})
+        
+        mongo.db.posts.delete_one({'_id': post_id})
+        flash('Post borrado exitosamente.')
+    except Exception as e:
+        flash('Error al borrar el post.')
+    
+    return redirect(url_for('user'))
+
+@app.route('/editar_post/<post_id>', methods=['POST'])
+def editar_post(post_id):
+    try:
+        # Convertir post_id a ObjectId si es necesario
+        post_id = ObjectId(post_id)
+        nuevo_texto = request.form.get('texto')
+
+        # Actualizar el post en la base de datos
+        mongo.db.posts.update_one(
+            {'_id': post_id},
+            {'$set': {'texto': nuevo_texto, 'fecha': datetime.now()}}
+        )
+        flash('Post actualizado exitosamente.')
+    except Exception as e:
+        flash('Error al actualizar el post.')
+    
+    return redirect(url_for('user'))
+
 @app.route('/logout')
 def logout():
     session.clear()
     flash('Sesión cerrada exitosamente.')
     return redirect(url_for('home'))
+
+# Ruta para servir imágenes desde MongoDB
+@app.route('/imagen/<imagen_id>')
+def imagen(imagen_id):
+    image = mongo.db.imagenes.find_one({'_id': ObjectId(imagen_id)})
+    if image:
+        return send_file(
+            BytesIO(image['data']),
+            mimetype=image['content_type'],
+            as_attachment=False,
+            download_name=image['filename']
+        )
+    else:
+        flash('Imagen no encontrada.')
+        return redirect(url_for('user'))
 
 if __name__ == '__main__':
     # Crear la carpeta de uploads si no existe
