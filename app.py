@@ -66,8 +66,8 @@ def login():
         correo = request.form.get('correo')
         password = request.form.get('password')
 
-        # Buscar usuario en la colección 'registro' de la base de datos
-        user = mongo.db.registro.find_one({'correo': correo})
+        # Buscar usuario en la colección 'users'
+        user = mongo.db.users.find_one({'correo': correo})
 
         # Verificar si se encontró un usuario y si la contraseña es correcta
         if user and check_password_hash(user['password'], password):
@@ -75,12 +75,11 @@ def login():
             session['usuario'] = user['usuario']
             flash('Inicio de sesión exitoso.')
             return redirect(url_for('user'))  # Redirigir a la página del usuario
+        else:
+            flash('Correo o contraseña incorrectos.')
 
     return render_template('login.html')
 
-
-
-# Ruta para mostrar la página de usuario después de iniciar sesión
 @app.route('/user', methods=['GET', 'POST'])
 def user():
     if 'user_id' in session:
@@ -121,7 +120,7 @@ def user():
                 return redirect(url_for('user'))
 
             # Guardar post en la base de datos
-            mongo.db.posts.insert_one(post_data)  # Cambié a la colección 'posts'
+            mongo.db.posts.insert_one(post_data)
             flash('Post creado exitosamente.')
 
         # Recuperar los posts para mostrarlos en el feed
@@ -135,7 +134,6 @@ def user():
     else:
         flash('Por favor, inicia sesión primero.')
         return redirect(url_for('login'))
-
 
 # Cerrar sesión
 @app.route('/logout')
