@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link  class="ops" rel="icon" href="{{ url_for('static', filename='css/file-earmark-break-fill.svg') }}" type="image/svg+xml">
+
+    <title>Perfil de Usuario</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #b5aaaa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .perfil {
+            width: 200px;
+            height: 200px;
+            margin: -100px 0 0 -1500px; /* Ajustado a la izquierda con un margen de 20px */
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(217, 156, 156, 0.1);
+        }
+
+        .perfil img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .contenido {
+            display: flex;
+            width: 100%;
+            max-width: 1500px; /* Ajustar según el ancho deseado */
+            margin: 20px auto;
+            box-sizing: border-box; /* Incluye padding y border en el cálculo del ancho y alto */
+        }
+
+        .historial {
+            width: 25%;
+            background-color: #c4c4c4;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-right: 20px;
+        }
+
+        .historial h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .historial ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .historial ul li {
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .principal {
+            width: 75%;
+        }
+
+        .nuevo-post {
+            background-color: #8a8484;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nuevo-post textarea {
+            width: 98%;
+            height: 80px;
+            border: none;
+            resize: none;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .opciones {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .opciones img {
+            width: 20px;
+            cursor: pointer;
+        }
+
+        .opciones button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .feed {
+            width: 100%;
+        }
+
+        .post {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .post img {
+            width: 100%;
+            height: auto; /* Mantiene la proporción de la imagen */
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+
+        .comentarios {
+            margin-top: 20px;
+        }
+
+        .comentarios h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .comentario {
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .nuevo-comentario textarea {
+            width: 100%;
+            height: 60px;
+            border: none;
+            resize: none;
+            padding: 10px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .nuevo-comentario button {
+            padding: 8px 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Capa rectangular con imagen -->
+    <div class="header">
+        <img src="static/images/pruev.jpg" alt="Imagen de cabecera">
+    </div>    
+    
+    <!-- Recuadro de la foto de perfil -->
+    <div class="perfil">
+        <img src="static/images/R.jpg" alt="Foto de perfil">
+    </div>
+
+    <!-- Mensaje de bienvenida -->
+    <h2>Bienvenido, {{ session['usuario'] }}!</h2>
+
+    <!-- Contenedor principal para el historial y el feed -->
+    <div class="contenido">
+        <!-- Columna izquierda con el historial de posts -->
+        <div class="historial">
+            <h3>Historial de Posts</h3>
+            <ul>
+                {% for post in posts %}
+                <li>
+                    <p>{{ post['texto'] }}</p>
+                    <p>Publicado por: {{ post['usuario'] }} el {{ post['fecha'] }}</p>
+                    {% if post.get('imagenes_id') %}
+                    <img src="{{ url_for('imagen', imagen_id=post['imagen_id']) }}" alt="Imagen de post">
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Sección principal con el feed y nuevo post -->
+        <div class="principal">
+            <!-- Formulario para crear un nuevo post -->
+            <div class="nuevo-post">
+                <form method="POST" enctype="multipart/form-data" action="{{ url_for('user') }}">
+                    <textarea name="texto" placeholder="¿Qué estás pensando?"></textarea>
+                    <div class="opciones">
+                        <label for="imagen">
+                            <img src="static/images/iconimg.png" alt="Añadir imagen">
+                        </label>
+                        <input type="file" name="imagen" id="imagen" accept="image/png, image/jpeg" style="display: none;">
+                        <button type="submit">Postear</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Feed donde se mostrarán los posts -->
+            <div class="feed">
+                <!-- Aquí se pueden agregar posts dinámicos -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

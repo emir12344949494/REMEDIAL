@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Perfil de Usuario</title>
+</head>
+<body>
+    <!-- Capa rectangular con imagen -->
+    <div class="header">
+        <img src="static/images/pruev.jpg" alt="Imagen de cabecera">
+    </div>    
+    
+    <!-- Recuadro de la foto de perfil -->
+    <div class="perfil">
+        <img src="static/images/R.jpg" alt="Foto de perfil">
+    </div>
+
+    <!-- Mensaje de bienvenida -->
+    <h2>Bienvenido, {{ session['usuario'] }}!</h2>
+
+    <!-- Formulario para crear un nuevo post -->
+    <div class="nuevo-post">
+        <form method="POST" enctype="multipart/form-data" action="{{ url_for('user') }}">
+            <textarea name="texto" placeholder="¿Qué estás pensando?"></textarea>
+            <div class="opciones">
+                <label for="imagen">
+                    <img src="static/images/iconimg.png" alt="Añadir imagen">
+                </label>
+                <input type="file" name="imagen" id="imagen" accept="image/png, image/jpeg" style="display: none;">
+                <button type="submit">Postear</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Sección para mostrar el historial de publicaciones -->
+    <div class="contenido">
+        <h3>Tus publicaciones</h3>
+        <ul>
+            {% for post in posts %}
+            <li>
+                <p>{{ post['texto'] }}</p>
+                <p>Publicado por: {{ post['usuario'] }} el {{ post['fecha'] }}</p>
+                {% if post.get('imagen_id') %}
+                <img src="{{ url_for('imagen', imagen_id=post['imagen_id']) }}" alt="Imagen de post">
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

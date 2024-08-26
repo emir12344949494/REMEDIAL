@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link  class="ops" rel="icon" href="{{ url_for('static', filename='css/card-checklist.svg') }}" type="image/svg+xml">
+    <title>Red Social - Empresa</title>
+    <style>
+        /* Reseteo de márgenes y padding para todos los elementos */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Estilo para el cuerpo */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #b5aaaa; /* Fondo similar al de Facebook */
+            color: #333;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Estilo para el contenedor principal */
+        .container {
+            max-width: 510px;
+            height: 345px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo para el encabezado */
+        header {
+            background-color: #4267B2; /* Color similar al de Facebook */
+            height: 190px;
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para los enlaces en la sección de botones */
+        .button-container {
+            margin-top: 20px;
+        }
+
+        /* Estilo para los enlaces de los botones */
+        a.button {
+            text-decoration: none;
+            color: white;
+            background-color: #4267B2; /* Color similar al de Facebook */
+            height: 50px;
+            width: 160px;
+            padding: 12px 24px;
+            border-radius: 5px;
+            margin: 0 10px;
+            display: inline-block;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        /* Estilo al pasar el ratón sobre los botones */
+        a.button:hover {
+            background-color: #365899;
+            transform: scale(1.05);
+        }
+
+        /* Estilo para el enlace de Políticas de Uso y Condiciones */
+        .footer-links {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .footer-links a {
+            color: #4267B2; /* Color similar al de Facebook */
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+          <br>
+            <h1>Bienvenido al sistema de reportes</h1>
+        </header>
+         <br>
+        <div class="button-container">
+            <a href="{{ url_for('register') }}" class="button">Registrarse</a>
+            <a href="{{ url_for('login') }}" class="button">Iniciar Sesión</a>
+    </div>
+</body>
+</html>
+
+

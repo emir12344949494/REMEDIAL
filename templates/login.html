@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link  class="ops" rel="icon" href="{{ url_for('static', filename='css/person-fill-add.svg') }}" type="image/svg+xml">
+    <title>Iniciar Sesión</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #b5aaaa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 450px;
+            height: 350px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            color: green;
+            margin-bottom: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            text-align: left;
+            font-size: 20px;
+        }
+
+        input {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            height: 22px;
+            width: 280px;
+            border-radius: 4px;
+            font-size: 17px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4267B2;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 450px;
+            height: 45px;
+            font-size: 17px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .register-link {
+            margin-top: 15px;
+            font-size: 18px;
+        }
+
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 20px;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .perro{
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2 class="perro">Iniciar Sesión</h2>
+
+        <!-- Mostrar mensajes flash de Flask -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for message in messages %}
+                        <li class="flash-message">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Formulario de inicio de sesión -->
+        <form method="POST" action="{{ url_for('user') }}">
+            <div class="form-group">
+                <label for="correo">Correo:</label>
+                <input type="email" id="correo" name="correo" placeholder="Ingrese su correo" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
+            </div>
+            
+            <button type="submit" class="btn-submit">Entrar</button>
+        </form>
+          <br>
+        <!-- Link para redirigir al registro -->
+        <p class="register-link">¿No tienes una cuenta? <a href="{{ url_for('register') }}">Regístrate aquí</a></p>
+    </div>
+</body>
+</html>
+
+
